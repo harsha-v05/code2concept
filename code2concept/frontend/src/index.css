@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+
+  :root {
+    --bg: #ffffff;
+    --bg-subtle: #fafafa;
+    --bg-muted: #f4f4f5;
+    --border: #e4e4e7;
+    --border-strong: #d4d4d8;
+    --text: #09090b;
+    --text-muted: #71717a;
+    --text-subtle: #a1a1aa;
+    --brand: #0d9488;
+    --brand-light: #f0fdf9;
+    --brand-dark: #0f766e;
+  }
+
+  .dark {
+    --bg: #09090b;
+    --bg-subtle: #111113;
+    --bg-muted: #18181b;
+    --border: #27272a;
+    --border-strong: #3f3f46;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --text-subtle: #71717a;
+    --brand: #14b8a6;
+    --brand-light: #042f2e;
+    --brand-dark: #2dd4bf;
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  ::selection { background: #ccfbef; color: #134e4a; }
+  .dark ::selection { background: #134e4a; color: #ccfbef; }
+}
+
+@layer components {
+  /* Card */
+  .card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .card-subtle {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  /* Button variants */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+    background: var(--brand);
+  }
+  .btn-primary:hover { background: var(--brand-dark); }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150;
+    background: var(--bg-muted);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--bg-subtle); }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-150;
+    color: var(--text-muted);
+  }
+  .btn-ghost:hover { background: var(--bg-muted); color: var(--text); }
+
+  /* Input */
+  .input {
+    @apply w-full px-3 py-2 rounded-lg text-sm transition-all duration-150 outline-none;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+  .input::placeholder { color: var(--text-subtle); }
+  .input:focus { border-color: var(--brand); box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 12%, transparent); }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium;
+  }
+  .badge-brand { background: var(--brand-light); color: var(--brand-dark); }
+  .badge-muted { background: var(--bg-muted); color: var(--text-muted); }
+
+  /* Code editor */
+  .code-editor .cm-editor { height: 100%; font-family: 'DM Mono', monospace; font-size: 13px; line-height: 1.6; }
+  .code-editor .cm-scroller { overflow: auto; }
+  .code-editor .cm-focused { outline: none; }
+
+  /* Spinner */
+  .spinner {
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    border-top-color: var(--brand);
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Scrollbar */
+  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
+  .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Divider */
+  .divider {
+    @apply flex items-center gap-3 text-xs;
+    color: var(--text-subtle);
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+}
+
+/* Cursor blink */
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+.cursor-blink::after { content:'|'; animation: blink 1s step-end infinite; margin-left:1px; color: var(--brand); }
