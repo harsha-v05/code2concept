@@ -13,8 +13,13 @@ load_dotenv()
 init_db()
 
 app = FastAPI(title="Code2Concept API", version="2.0.0")
+
 app.add_middleware(CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        os.environ.get("FRONTEND_URL", ""),
+    ],
     allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY", ""))
@@ -177,10 +182,6 @@ MERMAID RULES: Only use --> arrows in flowcharts. Keep labels under 4 words. No 
 Example: {examples.get(viz_mode,examples['flowchart'])}
 Code: ```{code}```"""
 
-class AnalyzeRequest(BaseModel):
-    code: str
-    viz_mode: str = "flowchart"
-
 @app.post("/analyze")
 async def analyze_code(req: AnalyzeRequest):
     if not req.code.strip(): raise HTTPException(400, "Code cannot be empty")
@@ -214,7 +215,7 @@ async def health(): return {"status":"ok","provider":"Groq","model":"llama-3.3-7
 # ─── Google OAuth ─────────────────────────────────────────────────
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
-GOOGLE_REDIRECT_URI = "http://127.0.0.1:8000/auth/google/callback"
+GOOGLE_REDIRECT_URI = os.environ.get("GOOGLE_REDIRECT_URI", "http://127.0.0.1:8000/auth/google/callback")
 
 @app.get("/auth/google/login")
 async def google_login():
@@ -229,14 +230,12 @@ async def google_callback(code: str):
     if not GOOGLE_CLIENT_ID:
         raise HTTPException(400, "Google OAuth not configured.")
     async with httpx.AsyncClient() as client:
-        # Exchange code for token
         token_res = await client.post("https://oauth2.googleapis.com/token", data={
             "code": code, "client_id": GOOGLE_CLIENT_ID,
             "client_secret": GOOGLE_CLIENT_SECRET,
             "redirect_uri": GOOGLE_REDIRECT_URI, "grant_type": "authorization_code"
         })
         tokens = token_res.json()
-        # Get user info
         user_res = await client.get("https://www.googleapis.com/oauth2/v2/userinfo",
             headers={"Authorization": f"Bearer {tokens['access_token']}"})
         guser = user_res.json()
@@ -253,11 +252,10 @@ async def google_callback(code: str):
             user_id = cur.lastrowid
         db.commit()
         token = create_token(user_id, guser["email"])
-        # Redirect to frontend with token
-        return RedirectResponse(f"http://localhost:5173?token={token}&name={guser['name']}")
+        frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173")
+        return RedirectResponse(f"{frontend_url}?token={token}&name={guser['name']}")
     finally:
         db.close()
-
 
 # ─── Code Execution ────────────────────────────────────────────────
 import subprocess, tempfile, sys
@@ -310,7 +308,6 @@ async def execute_code(req: ExecuteRequest):
             capture_output=True, text=True, timeout=10
         )
 
-        import os
         try: os.unlink(tmp_path)
         except: pass
 
