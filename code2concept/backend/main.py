@@ -17,7 +17,7 @@ app.add_middleware(CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
         "http://localhost:3000",
-        "https://code2concept-eight.vercel.app",  # ← add this
+        "https://code2concept-eight.vercel.app",
         os.environ.get("FRONTEND_URL", ""),
     ],
     allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
@@ -211,6 +211,12 @@ async def analyze_code(req: AnalyzeRequest):
 
 @app.get("/health")
 async def health(): return {"status":"ok","provider":"Groq","model":"llama-3.3-70b-versatile","version":"2.0"}
+
+# ─── Debug Route (remove after fixing) ────────────────────────────
+@app.get("/debug-key")
+async def debug_key():
+    key = os.environ.get("GROQ_API_KEY", "NOT SET")
+    return {"key_set": key != "NOT SET", "key_starts_with": key[:8] if key != "NOT SET" else "NOT SET"}
 
 # ─── Google OAuth ─────────────────────────────────────────────────
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
