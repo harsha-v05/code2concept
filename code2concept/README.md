@@ -1,10 +1,46 @@
-# Code2Concept — AI-Powered Algorithm Visualizer
+# Code2Concept — AI Code Visualizer & Algorithm Diagram Generator
 
-Turn any code into interactive diagrams and step-by-step concept maps using AI.
+> Paste any code → get instant flowcharts, diagrams & AI-powered explanations.
+
+**Code2Concept** is a free AI-powered tool that converts any code into interactive visual diagrams and step-by-step concept maps. Perfect for developers, students, and educators who want to understand, explain, or document algorithms visually.
+
+🚀 **Live Demo:** [code2concept-eight.vercel.app](https://code2concept-eight.vercel.app)
 
 ---
 
-## Project Structure
+## ✨ Features
+
+- **AI Code Analyzer** — instantly understands any code and explains it
+- **Code to Flowchart** — converts logic into clean Mermaid.js flowcharts
+- **4 Diagram Types** — Flowchart, Sequence, State, Class diagrams
+- **6 Built-in Snippets** — Stack, Bubble Sort, Binary Search, BFS, Quicksort, Linked List
+- **Time & Space Complexity** — auto-detected by AI
+- **Step-by-step Explanation** — beginner-friendly breakdowns
+- **CodeMirror Editor** — syntax highlighting for Python & JavaScript
+- **Dark / Light Mode** — full theme toggle
+- **Free to use** — no signup required
+
+---
+
+## 🖥️ Live Demo
+
+👉 [https://code2concept-eight.vercel.app](https://code2concept-eight.vercel.app)
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer    | Technology                        |
+|----------|-----------------------------------|
+| Frontend | React 18, Vite, Tailwind CSS      |
+| Editor   | CodeMirror 6                      |
+| Diagrams | Mermaid.js 10                     |
+| Backend  | FastAPI, Uvicorn, Python 3.11+    |
+| AI       | Groq — LLaMA 3.3 70B              |
+
+---
+
+## 📁 Project Structure
 
 ```
 code2concept/
@@ -34,10 +70,14 @@ code2concept/
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
-### 1. Get your Anthropic API key
-Sign up at [console.anthropic.com](https://console.anthropic.com) and create an API key.
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/yourusername/code2concept.git
+cd code2concept
+```
 
 ### 2. Start the Backend
 
@@ -53,13 +93,13 @@ pip install -r requirements.txt
 
 # Set your API key
 cp .env.example .env
-# Edit .env and replace: ANTHROPIC_API_KEY=your_actual_key_here
+# Edit .env and add: GROQ_API_KEY=your_actual_key_here
 
 # Run the server
 uvicorn main:app --reload --port 8000
 ```
 
-Backend runs at: http://localhost:8000
+Backend runs at: `http://localhost:8000`
 
 ### 3. Start the Frontend
 
@@ -73,47 +113,52 @@ npm install
 npm run dev
 ```
 
-Frontend runs at: http://localhost:5173
+Frontend runs at: `http://localhost:5173`
 
 ---
 
-## Features
+## 📡 API Endpoints
 
-- **6 built-in snippets** — Stack, Bubble Sort, Binary Search, BFS, Quicksort, Linked List
-- **4 diagram types** — Flowchart, Sequence, State, Class diagrams
-- **AI analysis** — Name, description, complexity, steps, use cases
-- **Dark mode** — Full dark/light theme toggle
-- **CodeMirror editor** — Syntax highlighting for Python and JavaScript
-- **Mermaid.js diagrams** — Interactive, rendered diagrams
-
-## API Endpoints
-
-| Method | Path             | Description                    |
-|--------|------------------|--------------------------------|
-| POST   | `/analyze`       | Analyze code and return JSON   |
-| POST   | `/analyze/stream`| Stream response via SSE        |
-| GET    | `/health`        | Health check                   |
-| GET    | `/snippets`      | List available snippet metadata|
+| Method | Path       | Description                  |
+|--------|------------|------------------------------|
+| POST   | `/analyze` | Analyze code and return JSON |
+| GET    | `/health`  | Health check                 |
 
 ---
 
-## Tech Stack
+## 🌐 Deployment
 
-| Layer    | Technology                        |
-|----------|-----------------------------------|
-| Frontend | React 18, Vite, Tailwind CSS      |
-| Editor   | CodeMirror 6                      |
-| Diagrams | Mermaid.js 10                     |
-| Backend  | FastAPI, Uvicorn, Python 3.11+    |
-| AI       | Anthropic Claude (claude-opus-4-5)|
-
----
-
-## Build for Production
+- **Frontend** — Vercel
+- **Backend** — Render
 
 ```bash
-# Frontend
+# Build frontend
 cd frontend && npm run build
-
-# Serve with backend (copy dist/ to static files or use nginx)
 ```
+
+---
+
+## 🔍 Use Cases
+
+- Visualize sorting algorithms (bubble sort, quicksort, merge sort)
+- Generate flowcharts from any function or script
+- Understand unfamiliar code quickly
+- Create diagrams for documentation
+- Learn data structures visually
+- Explain code to non-technical teammates
+
+---
+
+## 📬 Contributing
+
+Pull requests are welcome! Feel free to open an issue for bugs or feature requests.
+
+---
+
+## ⭐ Support
+
+If you find this useful, give it a **star** ⭐ on GitHub — it helps others discover the project!
+
+---
+
+**Keywords:** code visualizer, algorithm visualizer, code analyzer, code to flowchart, AI code explainer, code diagram generator, visualize code online, code to diagram, explain code with AI, free code analyzer
