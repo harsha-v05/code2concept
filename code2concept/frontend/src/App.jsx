@@ -35,7 +35,7 @@ export default function App() {
     const res = await analyze(code, vizMode);
     if (user && token && res) {
       try {
-        await fetch('http://127.0.0.1:8000/history', {
+        await fetch('https://code2concept-backend.onrender.com/history', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({ code, viz_mode: vizMode, result: JSON.stringify(res) }),

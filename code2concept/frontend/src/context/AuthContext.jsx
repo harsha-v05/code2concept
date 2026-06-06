@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
 
   async function fetchProfile(t) {
     try {
-      const res = await fetch('http://127.0.0.1:8000/auth/me', {
+      const res = await fetch('http://code2concept-backend.onrender.com/auth/me', {
         headers: { Authorization: `Bearer ${t}` },
       });
       if (res.ok) setUser(await res.json());

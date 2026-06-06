@@ -4,7 +4,7 @@
 export async function runCode(code, language) {
   // Use our own backend to execute code safely
   try {
-    const res = await fetch('http://127.0.0.1:8000/execute', {
+    const res = await fetch('http://code2concept-backend.onrender.com/execute', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code, language }),

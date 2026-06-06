@@ -11,7 +11,7 @@ export default function ProfilePage({ onBack }) {
 
   async function fetchHistory() {
     try {
-      const res = await fetch('http://127.0.0.1:8000/history', { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch('http://code2concept-backend.onrender.com/history', { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) setHistory(await res.json());
     } catch {} finally { setLoading(false); }
   }

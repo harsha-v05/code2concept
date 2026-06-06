@@ -21,7 +21,9 @@ export default function LoginPage({ onClose, initialMode = 'login' }) {
       const body = mode === 'signup' ? { name: form.name, email: form.email, password: form.password }
         : mode === 'forgot' ? { email: form.email }
         : { email: form.email, password: form.password };
-      const res = await fetch(`http://127.0.0.1:8000${endpoint}`, {
+      const API_URL = "https://code2concept-backend.onrender.com";
+
+const res = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
       });
       const data = await res.json();
@@ -60,7 +62,7 @@ export default function LoginPage({ onClose, initialMode = 'login' }) {
           {/* Google */}
           {mode !== 'forgot' && (
             <>
-              <a href="http://127.0.0.1:8000/auth/google/login"
+              <a href="https://code2concept-backend.onrender.com/auth/google/login"
                 className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer mb-4"
                 style={{ border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', textDecoration: 'none' }}
                 onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-muted)'}
