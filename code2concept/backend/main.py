@@ -213,10 +213,7 @@ async def analyze_code(req: AnalyzeRequest):
 async def health(): return {"status":"ok","provider":"Groq","model":"llama-3.3-70b-versatile","version":"2.0"}
 
 # ─── Debug Route (remove after fixing) ────────────────────────────
-@app.get("/debug-key")
-async def debug_key():
-    key = os.environ.get("GROQ_API_KEY", "NOT SET")
-    return {"key_set": key != "NOT SET", "key_starts_with": key[:8] if key != "NOT SET" else "NOT SET"}
+
 
 # ─── Google OAuth ─────────────────────────────────────────────────
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
