@@ -13,11 +13,11 @@ load_dotenv()
 init_db()
 
 app = FastAPI(title="Code2Concept API", version="2.0.0")
-
 app.add_middleware(CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
         "http://localhost:3000",
+        "https://code2concept-eight.vercel.app",  # ← add this
         os.environ.get("FRONTEND_URL", ""),
     ],
     allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
