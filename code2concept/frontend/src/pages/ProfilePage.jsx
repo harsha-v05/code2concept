@@ -11,13 +11,13 @@ export default function ProfilePage({ onBack }) {
 
   async function fetchHistory() {
     try {
-      const res = await fetch('http://code2concept-backend.onrender.com/history', { headers: { Authorization: `Bearer ${token}` } });
+      const res = await fetch('https://code2concept-backend.onrender.com/history', { headers: { Authorization: `Bearer ${token}` } });
       if (res.ok) setHistory(await res.json());
     } catch {} finally { setLoading(false); }
   }
 
   async function deleteItem(id) {
-    await fetch(`http://127.0.0.1:8000/history/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+    await fetch(`https://code2concept-backend.onrender.com/history/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
     setHistory(h => h.filter(x => x.id !== id));
   }
 
