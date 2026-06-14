@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, ChevronDown } from 'lucide-react';
+import { Play, ChevronDown, GitCompare } from 'lucide-react';  // added GitCompare
 import Navbar from './components/Navbar';
 import CodeEditor from './components/CodeEditor';
 import ResultPanel from './components/ResultPanel';
@@ -12,6 +12,7 @@ import { detectLanguage } from './utils/detectLanguage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import LandingPage from './pages/LandingPage';
+import ComparePage from './pages/ComparePage';   // ← NEW
 
 const SNIPPET_KEYS = Object.keys(SNIPPETS);
 
@@ -23,6 +24,7 @@ export default function App() {
   const [showLogin, setShowLogin] = useState(false);
   const [loginMode, setLoginMode] = useState('login');
   const [showProfile, setShowProfile] = useState(false);
+  const [showCompare, setShowCompare] = useState(false);   // ← NEW
 
   const { result, loading, error, loadingMsg, analyze } = useAnalyze();
   const { user, token, loading: authLoading } = useAuth();
@@ -46,7 +48,6 @@ export default function App() {
 
   const currentLang = detectLanguage(code) || SNIPPETS[activeSnippet]?.language || 'python';
 
-  // Show loading spinner while checking auth
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg)' }}>
@@ -55,7 +56,6 @@ export default function App() {
     );
   }
 
-  // Show landing page if not logged in
   if (!user) {
     return (
       <>
@@ -65,29 +65,44 @@ export default function App() {
             onSignup={() => { setLoginMode('signup'); setShowLogin(true); }}
           />
         </div>
-        {showLogin && (
-          <LoginPage
-            initialMode={loginMode}
-            onClose={() => setShowLogin(false)}
-          />
-        )}
+        {showLogin && <LoginPage initialMode={loginMode} onClose={() => setShowLogin(false)} />}
       </>
     );
   }
 
-  // Show profile page
   if (showProfile) return <ProfilePage onBack={() => setShowProfile(false)} />;
 
-  // Main app (only for logged in users)
+  // ── NEW: Compare page ──────────────────────────────────────────
+  if (showCompare) {
+    return (
+      <>
+        <Navbar
+          dark={dark}
+          onToggleDark={() => setDark(d => !d)}
+          onLoginClick={() => setShowLogin(true)}
+          onProfileClick={() => setShowProfile(true)}
+          onCompareClick={() => setShowCompare(false)}   // back to analyze
+          showCompare={showCompare}
+        />
+        <ComparePage />
+      </>
+    );
+  }
+  // ──────────────────────────────────────────────────────────────
+
   return (
     <div className="min-h-screen" style={{ background: 'var(--bg)' }}>
-      <Navbar dark={dark} onToggleDark={() => setDark(d => !d)}
+      <Navbar
+        dark={dark}
+        onToggleDark={() => setDark(d => !d)}
         onLoginClick={() => setShowLogin(true)}
-        onProfileClick={() => setShowProfile(true)} />
+        onProfileClick={() => setShowProfile(true)}
+        onCompareClick={() => setShowCompare(true)}   // ← NEW
+        showCompare={showCompare}
+      />
 
       {showLogin && <LoginPage onClose={() => setShowLogin(false)} />}
 
-      {/* Header */}
       <div className="pt-20 pb-6 px-4 text-center">
         <h1 className="text-3xl md:text-4xl font-semibold tracking-tight mb-2" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>
           Welcome back, <span style={{ color: 'var(--brand)' }}>{user.name?.split(' ')[0]}</span>
@@ -97,13 +112,10 @@ export default function App() {
         </p>
       </div>
 
-      {/* Workspace */}
       <div className="max-w-6xl mx-auto px-4 pb-16">
         <div className="grid lg:grid-cols-2 gap-3">
 
-          {/* Left */}
           <div className="flex flex-col gap-3">
-            {/* Snippets */}
             <div className="card p-1">
               <div className="flex flex-wrap gap-1">
                 {SNIPPET_KEYS.map(key => (
@@ -121,7 +133,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Editor */}
             <div className="card overflow-hidden flex flex-col" style={{ minHeight: 340 }}>
               <div className="flex items-center justify-between px-4 py-2.5 border-b"
                 style={{ borderColor: 'var(--border)', background: 'var(--bg-subtle)' }}>
@@ -136,7 +147,6 @@ export default function App() {
               </div>
             </div>
 
-            {/* Controls */}
             <div className="card p-2 flex gap-2 items-center">
               <div className="relative flex-1">
                 <select value={vizMode} onChange={e => setVizMode(e.target.value)}
@@ -153,7 +163,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right */}
           <div className="card flex flex-col overflow-hidden" style={{ minHeight: 500 }}>
             <div className="flex items-center justify-between px-4 py-2.5 border-b"
               style={{ borderColor: 'var(--border)', background: 'var(--bg-subtle)' }}>
@@ -171,7 +180,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Footer */}
         <div className="mt-12 pt-6 border-t flex items-center justify-between flex-wrap gap-4"
           style={{ borderColor: 'var(--border)' }}>
           <p className="text-xs" style={{ color: 'var(--text-subtle)' }}>© 2025 Code2Concept. All rights reserved.</p>

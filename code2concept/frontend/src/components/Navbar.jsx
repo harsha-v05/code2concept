@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Moon, Sun, Github, User, LogOut, History, ChevronDown } from 'lucide-react';
+import { Moon, Sun, Github, User, LogOut, History, ChevronDown, GitCompare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export default function Navbar({ dark, onToggleDark, onLoginClick, onProfileClick }) {
+export default function Navbar({ dark, onToggleDark, onLoginClick, onProfileClick, onCompareClick, showCompare }) {
   const { user, logout } = useAuth();
   const [dropOpen, setDropOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -24,16 +24,39 @@ export default function Navbar({ dark, onToggleDark, onLoginClick, onProfileClic
     <header className={`fixed top-0 inset-x-0 z-50 h-14 transition-all duration-200 ${scrolled ? 'border-b' : ''}`}
       style={{ background: scrolled ? 'color-mix(in srgb, var(--bg) 90%, transparent)' : 'transparent', borderColor: 'var(--border)', backdropFilter: scrolled ? 'blur(12px)' : 'none' }}>
       <div className="max-w-6xl mx-auto px-4 h-full flex items-center justify-between">
+
         {/* Logo */}
         <a href="/" className="flex items-center gap-2 group">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center text-white text-xs font-bold" style={{ background: 'var(--brand)' }}>C2</div>
-          <span className="font-semibold text-sm tracking-tight" style={{ color: 'var(--text)' }}>
-            Code2Concept
-          </span>
+          <span className="font-semibold text-sm tracking-tight" style={{ color: 'var(--text)' }}>Code2Concept</span>
         </a>
 
-        {/* Center - empty */}
-        <div />
+        {/* ── NEW: Center nav tabs (only shown when logged in) ── */}
+        {user && (
+          <div className="flex items-center gap-1 p-1 rounded-lg" style={{ background: 'var(--bg-muted)', border: '1px solid var(--border)' }}>
+            <button
+              onClick={onCompareClick}
+              className="px-3 py-1 rounded-md text-xs font-medium transition-all"
+              style={{
+                background: !showCompare ? 'var(--bg)' : 'transparent',
+                color: !showCompare ? 'var(--text)' : 'var(--text-muted)',
+                boxShadow: !showCompare ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              }}>
+              Analyze
+            </button>
+            <button
+              onClick={onCompareClick}
+              className="px-3 py-1 rounded-md text-xs font-medium transition-all flex items-center gap-1.5"
+              style={{
+                background: showCompare ? 'var(--bg)' : 'transparent',
+                color: showCompare ? 'var(--text)' : 'var(--text-muted)',
+                boxShadow: showCompare ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              }}>
+              <GitCompare size={11} /> Compare
+            </button>
+          </div>
+        )}
+        {/* ───────────────────────────────────────────────────── */}
 
         {/* Right */}
         <div className="flex items-center gap-1">

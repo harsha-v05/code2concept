@@ -29,6 +29,12 @@ class AnalyzeRequest(BaseModel):
     code: str
     viz_mode: str = "flowchart"
 
+class CompareRequest(BaseModel):
+    code1: str
+    lang1: str = "unknown"
+    code2: str
+    lang2: str = "unknown"
+
 class SignupRequest(BaseModel):
     name: str
     email: str
@@ -45,6 +51,7 @@ class HistoryRequest(BaseModel):
     code: str
     viz_mode: str
     result: str
+
 
 # ─── Auth Routes ──────────────────────────────────────────────────
 @app.post("/auth/signup")
@@ -99,6 +106,7 @@ async def me(current_user=Depends(get_current_user)):
     finally:
         db.close()
 
+
 # ─── History Routes ────────────────────────────────────────────────
 @app.post("/history")
 async def save_history(req: HistoryRequest, current_user=Depends(get_current_user)):
@@ -130,6 +138,7 @@ async def delete_history(item_id: int, current_user=Depends(get_current_user)):
         return {"success": True}
     finally:
         db.close()
+
 
 # ─── Analyze Route ─────────────────────────────────────────────────
 def fix_mermaid(code: str, viz_mode: str) -> str:
@@ -209,10 +218,113 @@ async def analyze_code(req: AnalyzeRequest):
         if "rate" in msg.lower(): raise HTTPException(429, "Rate limit hit. Wait a moment.")
         raise HTTPException(500, f"Error: {msg}")
 
+
+# ─── Compare Route ─────────────────────────────────────────────────
+COMPARE_SYSTEM_PROMPT = """You are a senior software engineer doing a rigorous code review.
+Compare two code snippets objectively. Be specific — mention actual algorithmic differences.
+Always respond with valid JSON only — no markdown fences, no extra text."""
+
+def build_compare_prompt(code1, lang1, code2, lang2):
+    return f"""Compare these two code snippets and respond ONLY with this exact JSON:
+{{
+  "code1_analysis": {{
+    "language": "{lang1}",
+    "time_complexity": "O(...)",
+    "space_complexity": "O(...)",
+    "readability_score": <integer 1-10>,
+    "maintainability_score": <integer 1-10>,
+    "strengths": ["strength 1", "strength 2"],
+    "weaknesses": ["weakness 1", "weakness 2"],
+    "bugs": [],
+    "use_cases": ["use case 1", "use case 2"]
+  }},
+  "code2_analysis": {{
+    "language": "{lang2}",
+    "time_complexity": "O(...)",
+    "space_complexity": "O(...)",
+    "readability_score": <integer 1-10>,
+    "maintainability_score": <integer 1-10>,
+    "strengths": ["strength 1", "strength 2"],
+    "weaknesses": ["weakness 1", "weakness 2"],
+    "bugs": [],
+    "use_cases": ["use case 1", "use case 2"]
+  }},
+  "verdict": {{
+    "winner": "A" or "B" or "tie",
+    "reasoning": "2-3 sentences citing specific differences",
+    "tradeoffs": "What you give up choosing the winner",
+    "recommendation": "One sentence on when to use the winner"
+  }}
+}}
+
+RULES:
+- winner must be exactly "A", "B", or "tie"
+- readability_score and maintainability_score must be integers 1-10
+- bugs list should be empty [] if no bugs found
+
+Code A ({lang1}):
+```
+{code1}
+```
+
+Code B ({lang2}):
+```
+{code2}
+```"""
+
+@app.post("/compare")
+async def compare_code(req: CompareRequest):
+    if not req.code1.strip() or not req.code2.strip():
+        raise HTTPException(400, "Both code snippets are required")
+    if len(req.code1) > 10000 or len(req.code2) > 10000:
+        raise HTTPException(400, "Code too long (max 10,000 chars each)")
+    try:
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": COMPARE_SYSTEM_PROMPT},
+                {"role": "user", "content": build_compare_prompt(
+                    req.code1, req.lang1, req.code2, req.lang2
+                )},
+            ],
+            temperature=0.2,
+            max_tokens=2000,
+        )
+        raw = completion.choices[0].message.content.strip()
+        try:
+            parsed = json.loads(raw)
+        except Exception:
+            clean = re.sub(r"```json|```", "", raw).strip()
+            try:
+                parsed = json.loads(clean)
+            except Exception:
+                m = re.search(r'\{[\s\S]*\}', clean)
+                if m:
+                    parsed = json.loads(m.group(0))
+                else:
+                    raise HTTPException(500, "AI returned invalid JSON")
+
+        winner = parsed.get("verdict", {}).get("winner", "").strip().upper()
+        if winner not in ("A", "B", "TIE"):
+            winner = "TIE"
+        if "verdict" in parsed:
+            parsed["verdict"]["winner"] = "tie" if winner == "TIE" else winner
+
+        return {"success": True, "data": parsed, "raw": raw}
+    except HTTPException:
+        raise
+    except Exception as e:
+        msg = str(e)
+        if "auth" in msg.lower() or "api key" in msg.lower():
+            raise HTTPException(401, "Invalid Groq API key")
+        if "rate" in msg.lower():
+            raise HTTPException(429, "Rate limit hit. Wait a moment.")
+        raise HTTPException(500, f"Error: {msg}")
+
+
+# ─── Health ────────────────────────────────────────────────────────
 @app.get("/health")
 async def health(): return {"status":"ok","provider":"Groq","model":"llama-3.3-70b-versatile","version":"2.0"}
-
-# ─── Debug Route (remove after fixing) ────────────────────────────
 
 
 # ─── Google OAuth ─────────────────────────────────────────────────
@@ -259,6 +371,7 @@ async def google_callback(code: str):
         return RedirectResponse(f"{frontend_url}?token={token}&name={guser['name']}")
     finally:
         db.close()
+
 
 # ─── Code Execution ────────────────────────────────────────────────
 import subprocess, tempfile, sys
