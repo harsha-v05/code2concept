@@ -324,7 +324,14 @@ async def compare_code(req: CompareRequest):
 
 # ─── Health ────────────────────────────────────────────────────────
 @app.get("/health")
-async def health(): return {"status":"ok","provider":"Groq","model":"llama-3.3-70b-versatile","version":"2.0"}
+@app.head("/health")
+async def health():
+    return {
+        "status": "ok",
+        "provider": "Groq",
+        "model": "llama-3.3-70b-versatile",
+        "version": "2.0"
+    }
 
 
 # ─── Google OAuth ─────────────────────────────────────────────────
